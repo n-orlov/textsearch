@@ -1,0 +1,13 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<p th:replace="fragments/header"/>
+<a href="javascript:history.back()">Go Back</a>
+<h3><span th:text="'Search match in '"/><a th:href="@{'/download/' + ${name}}" th:text="${name}"/><span th:text="' for ' + ${searchFor} + ' at index ' + ${matchIndex}"/></h3>
+<span th:utext="${#strings.replace( #strings.escapeXml( before ),T(java.lang.System).getProperty('line.separator'),'&lt;br /&gt;')}"
+/><span style="background-color: #FFFF00" th:utext="${#strings.replace( #strings.escapeXml(searchFor ),T(java.lang.System).getProperty('line.separator'),'&lt;br /&gt;')}"
+/><span th:utext="${#strings.replace( #strings.escapeXml( after ),T(java.lang.System).getProperty('line.separator'),'&lt;br /&gt;')}"/>
+<br/>
+<hr align="left" width="50%">
+<a th:href="@{'/fragment?name=' + ${name} + '&searchFor=' + ${searchFor} + '&matchIndex=' + ${matchIndex} + '&radius=' + ${radius * 2}}" th:text="Expand"/>
+</body>
+</html>
