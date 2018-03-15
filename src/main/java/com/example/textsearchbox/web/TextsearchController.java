@@ -103,6 +103,7 @@ public class TextsearchController {
             String name = uploaded.getOriginalFilename();
             File tempFile = File.createTempFile("txtSearch", null);
             uploaded.transferTo(tempFile);
+            tempFile.deleteOnExit();
             if (name == null || name.isEmpty()) {
                 errors.add("Cannot get file name");
                 continue;
