@@ -1,4 +1,4 @@
-package com.example.textsearch.util.timelog;
+package com.example.textsearchbox.util.timelog;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,7 +13,7 @@ import org.springframework.util.StopWatch;
 @Slf4j
 @Profile("timelog")
 public class TimeMeAspect {
-    @Around("@annotation(com.example.textsearch.util.timelog.TimeMe)")
+    @Around("@annotation(com.example.textsearchbox.util.timelog.TimeMe)")
     public Object logTime(ProceedingJoinPoint joinPoint) throws Throwable {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();

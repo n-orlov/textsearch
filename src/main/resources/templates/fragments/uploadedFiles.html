@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block>
     <th:block th:unless="${files.isEmpty()}">
-        Currently uploaded file names:
+        Currently uploaded files:
         <ul>
             <li th:each="file : ${files}">
                 <a th:href="@{'/download/' + ${file}}" th:text="${file}"/>

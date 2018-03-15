@@ -1,7 +1,6 @@
-package com.example.textsearch.web;
+package com.example.textsearchbox.web;
 
-import com.example.textsearch.service.SearchService;
-import lombok.AllArgsConstructor;
+import com.example.textsearchbox.service.SearchService;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +17,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Scanner;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
 @Slf4j
 public class TextsearchController {
 
@@ -52,6 +55,7 @@ public class TextsearchController {
         stopWatch.stop();
 
         model.addAttribute("searchFor", searchFor);
+        model.addAttribute("matchCount", result.values().stream().mapToLong(Collection::size).sum());
         model.addAttribute("searchTimeMillis", stopWatch.getLastTaskTimeMillis());
         model.addAttribute("searchResults", result);
         return "searchForm";
@@ -64,10 +68,9 @@ public class TextsearchController {
 
     @GetMapping("/fragment")
     public String viewFileFragment(@RequestParam String name, @RequestParam String searchFor,
-                                   @RequestParam Integer matchIndex, @RequestParam Integer radius,
+                                   @RequestParam Integer matchIndex, @RequestParam(defaultValue = "100") Integer radius,
                                    Model model) throws IOException {
-        //String filePart = searchService.getSource()getFilePart(name, matchIndex - radius, searchFor.length() + radius * 2);
-        if (searchService.getSource(name) == null) {
+        if (!searchService.getStoredSourceNames().contains(name)) {
             throw new ResourceNotFoundException("File " + name + " not found");
         }
         model.addAttribute("name", name);
@@ -80,35 +83,43 @@ public class TextsearchController {
         return "textFragment";
     }
 
-    @GetMapping(value = "/download/{name}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable("name") String name) throws IOException {
-        String source = searchService.getSource(name);
+    @GetMapping(value = "/download/{name}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable("name") String name) throws IOException {
+        InputStream source = searchService.getSource(name);
         if (source == null) {
             throw new ResourceNotFoundException("File " + name + " not found");
         }
-        ByteArrayResource resource = new ByteArrayResource(source.getBytes("UTF8"));
+        InputStreamResource resource = new InputStreamResource(source);
         return ResponseEntity.ok()
-                .contentLength(resource.contentLength())
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .body(resource);
     }
 
-    @PostMapping("/upload")
-    public String handleFileUpload(@RequestParam("file") MultipartFile uploaded,
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String handleFileUpload(@RequestParam("file") MultipartFile uploadedFiles[],
                                    RedirectAttributes redirectAttributes) throws IOException {
-        String name = uploaded.getOriginalFilename();
-        if (name == null || name.isEmpty()) {
-            throw new BadRequestException("Cannot get file name");
+        Collection<String> added = new ArrayList<>();
+        Collection<String> errors = new ArrayList<>();
+        for (MultipartFile uploaded : uploadedFiles) {
+            String name = uploaded.getOriginalFilename();
+            File tempFile = File.createTempFile("txtSearch", null);
+            uploaded.transferTo(tempFile);
+            if (name == null || name.isEmpty()) {
+                errors.add("Cannot get file name");
+                continue;
+            }
+            try {
+                searchService.addSource(name, tempFile);
+                added.add(name);
+            } catch (Exception e) {
+                log.error("Error caught when uploading file", e);
+                errors.add(e.getMessage());
+            }
         }
-        try {
-            searchService.addSource(name, uploaded.getInputStream());
-            redirectAttributes.addFlashAttribute("message",
-                    "You successfully uploaded: " + uploaded.getOriginalFilename());
-            return "redirect:/upload";
-        } catch (Exception e) {
-            log.error("Error caught when uploading file", e);
-            throw new BadRequestException(e.getMessage());
-        }
+        redirectAttributes.addFlashAttribute("message",
+                "You successfully uploaded: " + String.join(", ", added));
+        redirectAttributes.addFlashAttribute("errors",
+                "Errors caught: " + String.join(", ", errors));
+        return "redirect:/upload";
     }
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND)

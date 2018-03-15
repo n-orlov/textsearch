@@ -2,10 +2,6 @@
 <body>
 <p th:replace="fragments/header"/>
 
-<p th:if="${message}">
-    <h2 th:text="${message}"/>
-</p>
-
 <p>
     <a href="/upload">Upload files for search</a>
 </p>
@@ -14,12 +10,18 @@
 <th:block th:unless="${files.isEmpty()}">
     <hr align="left" width="50%">
     <p>
-        <form method="POST" action="/">
+    <form method="POST" action="/">
         <table>
-            <tr><td>String to search for: </td><td><input pattern=".{3,}" required type="text" name="searchFor" /></td></tr>
-            <tr><td></td><td><input type="submit" value="Search" /></td></tr>
+            <tr>
+                <td>String to search for:</td>
+                <td><input pattern=".{3,}" required type="text" name="searchFor"/></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="submit" value="Search"/></td>
+            </tr>
         </table>
-        </form>
+    </form>
     </p>
 </th:block>
 
@@ -27,16 +29,18 @@
     <hr align="left" width="50%">
     <h3 th:text="'Search completed in ' + ${searchTimeMillis} + ' ms'"/>
     <th:block th:if="${searchResults.isEmpty()}">
-        <p>No matches found</p>
+        <p th:text="'No matches found for string' + ${searchFor}"/>
     </th:block>
     <th:block th:unless="${searchResults.isEmpty()}">
-        <p>Found matches at indexes:</p>
+        <p th:text="'Found ' + ${matchCount} + ' matches in ' + ${searchResults.entrySet().size()} + ' files for string &quot;' + ${searchFor} + '&quot; at following indexes:'"/>
         <ul>
             <li th:each="matchEntry : ${searchResults.entrySet()}">
-                 <p>
-                    <span><strong><a th:href="@{'/download/' + ${matchEntry.getKey()}}" th:text="${matchEntry.getKey()} + ' : '"/></strong></span>
+                <p>
+                    <span><strong><a th:href="@{'/download/' + ${matchEntry.getKey()}}"
+                                     th:text="${matchEntry.getKey()} + ' : '"/></strong></span>
                     <span th:each="matchPos, iterStat : ${matchEntry.getValue()}">
-                        <a th:href="@{'/fragment?name=' + ${matchEntry.getKey()} + '&searchFor=' + ${searchFor} + '&matchIndex=' + ${matchPos} + '&radius=100'}" th:text="${matchPos}"/>
+                        <a target="_blank" th:href="@{'/fragment?name=' + ${matchEntry.getKey()} + '&searchFor=' + ${searchFor} + '&matchIndex=' + ${matchPos} + '&radius=100'}"
+                           th:text="${matchPos}"/>
                         <span th:unless="${iterStat.last}" th:text="', '"/>
                     </span>
                 </p>

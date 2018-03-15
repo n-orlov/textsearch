@@ -1,4 +1,4 @@
-package com.example.textsearch.service;
+package com.example.textsearchbox.service;
 
 import com.google.common.cache.CacheBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -13,14 +13,14 @@ import org.springframework.cache.interceptor.SimpleKeyGenerator;
 import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.lang.Nullable;
+import org.springframework.context.annotation.Profile;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 @EnableCaching
 @Configuration
 @Slf4j
+@Profile("!nocache")
 public class CacheConfig implements CachingConfigurer {
     public final static String SEARCH_CACHE = "SEARCH_CACHE";
 

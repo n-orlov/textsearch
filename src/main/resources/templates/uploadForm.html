@@ -3,16 +3,25 @@
 <p th:replace="fragments/header"/>
 
 <p th:if="${message}">
-    <h2 th:text="${message}"/>
+<h2 th:text="${message}"/>
+</p>
+<p th:if="${errors}">
+<h2 th:text="${errors}"/>
 </p>
 
 <p>
-    <form method="POST" enctype="multipart/form-data" action="/upload">
-        <table>
-            <tr><td>File to upload:</td><td><input type="file" name="file" /></td></tr>
-            <tr><td></td><td><input type="submit" value="Upload" /></td></tr>
-        </table>
-    </form>
+<form method="POST" enctype="multipart/form-data" action="/upload" >
+    <table>
+        <tr>
+            <td>File to upload:</td>
+            <td><input type="file" name="file" multiple/></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Upload"/></td>
+        </tr>
+    </table>
+</form>
 </p>
 <hr align="left" width="50%">
 

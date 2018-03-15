@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <springProperty scope="context" name="searchLoggingLevel" source="logging.searchLoggingLevel" defaultValue="INFO"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -9,7 +10,7 @@
         </layout>
     </appender>
 
-    <logger name="com.example.textsearch" level="debug"/>
+    <logger name="com.example.textsearchbox" level="${searchLoggingLevel}"/>
 
     <root level="error">
         <appender-ref ref="STDOUT" />

@@ -1,4 +1,4 @@
-package com.example.textsearch.util.timelog;
+package com.example.textsearchbox.util.timelog;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

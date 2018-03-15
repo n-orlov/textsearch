@@ -9,7 +9,7 @@
         </layout>
     </appender>
 
-    <logger name="com.example.textsearch" level="error"/>
+    <logger name="com.example.textsearchbox" level="debug"/>
 
     <root level="error">
         <appender-ref ref="STDOUT" />
